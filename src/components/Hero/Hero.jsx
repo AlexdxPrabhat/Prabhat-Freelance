@@ -1,0 +1,126 @@
+import { useRef } from "react";
+import { FiArrowDown, FiArrowRight } from "react-icons/fi";
+import { gsap, useGSAP, SplitText, ScrollTrigger, scrollToSection, prefersReducedMotion } from "../../lib/motion";
+import MagneticButton from "../ui/MagneticButton";
+import PortraitStage from "./PortraitStage";
+import Prologue from "./Prologue";
+
+const roles = ["Android apps", "websites & web apps", "ServiceNow solutions", "AI features", "backends & APIs"];
+const proof = ["Ex-Accenture ServiceNow developer", "ServiceNow CSA certified", "Fixed quotes · you own the code"];
+
+const Hero = ({ ready }) => {
+  const root = useRef(null);
+
+  useGSAP(
+    () => {
+      if (!ready) return;
+      const title = root.current.querySelector(".hero-title");
+
+      if (prefersReducedMotion()) {
+        gsap.set([title, ".hero-fade", ".hero-stage"], { autoAlpha: 1 });
+        gsap.set(".role-word:not(:first-child)", { autoAlpha: 0 });
+        return;
+      }
+
+      const split = SplitText.create(title, { type: "words,chars", mask: "words" });
+      gsap.set(title, { autoAlpha: 1 });
+      gsap
+        .timeline({ defaults: { ease: "expo.out" } })
+        .set(".hero-stage", { autoAlpha: 1 })
+        .from(split.chars, { yPercent: 110, duration: 1.2, stagger: 0.025 }, 0.35)
+        .fromTo(".hero-fade", { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.07 }, 0.6);
+
+      // Rotating role: each word rises in, holds, and leaves upward.
+      const words = gsap.utils.toArray(".role-word");
+      gsap.set(words, { yPercent: 110 });
+      const loop = gsap.timeline({ repeat: -1, delay: 1.4 });
+      words.forEach((w) => {
+        loop.to(w, { yPercent: 0, duration: 0.8, ease: "expo.out" }).to(w, { yPercent: -110, duration: 0.6, ease: "expo.in" }, "+=1.6");
+      });
+
+      ScrollTrigger.refresh();
+    },
+    { dependencies: [ready], scope: root }
+  );
+
+  return (
+    <section id="home" ref={root} className="relative flex min-h-[100svh] items-center overflow-hidden pb-14 pt-24 md:pt-28">
+      <Prologue ready={ready} />
+      {/* Faint grid and a soft glow behind the portrait */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(241,239,233,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(241,239,233,0.045)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(ellipse_75%_65%_at_60%_40%,#000_35%,transparent_100%)]"
+      />
+
+      <div className="container-x relative z-10 grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+        <div className="hero-copy order-2 lg:order-1 lg:col-span-7">
+          <p className="hero-fade invisible flex items-center gap-2.5 text-[11px] uppercase tracking-[0.22em] text-paper/70 md:text-xs">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+            </span>
+            Available for freelance projects
+          </p>
+
+          <p className="hero-fade invisible mt-6 text-2xl text-paper/60 md:mt-8 md:text-3xl">Hi, I&apos;m</p>
+          <h1 className="hero-title display invisible mt-2 text-[clamp(3.25rem,8.5vw,8rem)]">
+            Prabhat Bisht<span className="text-accent">.</span>
+          </h1>
+
+          <p className="hero-fade invisible mt-6 text-xl leading-snug md:mt-8 md:text-3xl">
+            I build your{" "}
+            <span className="relative inline-grid overflow-hidden align-bottom">
+              {roles.map((r, i) => (
+                <span
+                  key={r}
+                  aria-hidden={i > 0 ? "true" : undefined}
+                  className="role-word col-start-1 row-start-1 whitespace-nowrap font-serif italic text-accent"
+                >
+                  {r}
+                </span>
+              ))}
+            </span>
+          </p>
+          <p className="hero-fade invisible mt-4 max-w-xl text-base leading-relaxed text-paper/65 md:text-lg">
+            Freelance developer and former Accenture ServiceNow developer. I take projects from the first call to
+            launch, with a fixed quote and a working build at every milestone.
+          </p>
+
+          <div className="hero-fade invisible mt-8 flex flex-wrap items-center gap-3 md:mt-10">
+            <MagneticButton
+              onClick={() => scrollToSection("#contact")}
+              data-cursor="Hire"
+              className="h-14 rounded-full bg-paper px-7 text-sm font-semibold text-ink"
+            >
+              Start a project <FiArrowRight aria-hidden="true" />
+            </MagneticButton>
+            <MagneticButton
+              onClick={() => scrollToSection("#work")}
+              data-cursor="Go"
+              className="h-14 rounded-full border border-line px-7 text-sm font-medium text-paper hover:border-paper/40"
+            >
+              See my work <FiArrowDown aria-hidden="true" />
+            </MagneticButton>
+          </div>
+
+          <ul className="hero-fade invisible mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-paper/55">
+            {proof.map((p) => (
+              <li key={p} className="flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-accent" />
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="order-1 lg:order-2 lg:col-span-5">
+          <div className="hero-stage invisible mx-auto w-full max-w-[18rem] sm:max-w-sm lg:max-w-[30rem]">
+            <PortraitStage ready={ready} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;
