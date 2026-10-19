@@ -211,7 +211,7 @@ export const experience = {
   logo: accenture,
   role: "Packaged App Development Associate · ServiceNow Developer",
   place: "Accenture Solutions Pvt. Ltd. · Bengaluru",
-  date: "Oct 2024 – 2026",
+  date: "Oct 2024 – Sep 2026",
   summary: "Built ITSM and CMDB solutions on ServiceNow for a large enterprise client, in Agile sprints from development to production.",
   highlights: [
     "Created and configured nearly 3,000 Configuration Items and their relationships in the CMDB using Import Sets, for impact analysis in Incident and Change.",
